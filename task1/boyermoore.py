@@ -49,7 +49,6 @@ class BoyerMoore:
         self.patterns: List[str] = self._parse_fasta(patterns_path, multiple=True)
         self.c_map: Dict[str, int] = self._character_map()
         self.pat_map: Dict[str, int] = self._patterns_map()
-        # print(self.pat_map)
         self.preprocessing = self._preprocessing()
 
     def _patterns_map(self) -> Dict[str, int]:
@@ -105,7 +104,6 @@ class BoyerMoore:
                         for j in range(i + 1, len(pat)):
                             arr[self.c_map[c], j] = i
             prep.append(arr)
-            # print(pat, self.c_map, arr, sep="\n")
         return prep
     
     def _parse_fasta(self, path: str, multiple=False):
@@ -249,11 +247,6 @@ class BoyerMoore:
         return data
 
 if __name__ == "__main__":
-    # import time
-    # now = time.time()
-
     bm = BoyerMoore(sys.argv[1], sys.argv[2])  # (sequence, pattern)
     data = bm.boyer_moore()
     print_data(data)
-    
-    # print(time.time() - now)
