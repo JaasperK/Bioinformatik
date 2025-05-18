@@ -86,14 +86,13 @@ class BoyerMoore:
         
     def _preprocessing(self) -> List[np.ndarray]:
         """
-        Precomputes the lookup-tables for positions of characters for all
-        patterns.
+        Precomputes the BCR lookup-tables for each pattern in self.patterns.
 
         Returns
         -------
         np.ndarray
             A 3-dimensional array that contains the 2-dimensional lookup tables
-            for all the patterns. Following [pattern][character][index].
+            for each pattern. Following [pattern][character][index].
         """
         prep = []
         for pat in self.patterns:
