@@ -216,6 +216,8 @@ class BoyerMoore:
         data: List[List[int]] = []
         for P in self.patterns:
             t = 0
+            pat_len = len(P)
+
             bcr_count = 0
             match_count = 0
             positions: List[int] = []
@@ -234,18 +236,22 @@ class BoyerMoore:
                     t += 1
                 else:
                     s1 = self.BCR(t, p, self.pat_map[P])
-                    if p < len(P) / 2:  # No other occurence of suffix if we are len(P)/2 into the pattern.
+                    s2 = self.GSR(t, p, self.pat_map[P])
+                    if (s1 >= s2):
                         bcr_count += 1
                         t += s1
                     else:
-                        s2 = self.GSR(t, p, self.pat_map[P])
-                        if (s1 >= s2): bcr_count += 1
-                        t += max(s1, s2)
+                        t += s2
             
             data.append([bcr_count, match_count] + positions)
         return data
 
 if __name__ == "__main__":
+    from time import time
+    now = time()
+    
     bm = BoyerMoore(sys.argv[1], sys.argv[2])  # (sequence, pattern)
     data = bm.boyer_moore()
     print_data(data)
+
+    print(time() - now)
