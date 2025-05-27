@@ -216,8 +216,6 @@ class BoyerMoore:
         data: List[List[int]] = []
         for P in self.patterns:
             t = 0
-            pat_len = len(P)
-
             bcr_count = 0
             match_count = 0
             positions: List[int] = []
