@@ -6,3 +6,8 @@ Repository für die Aufgaben des Moduls Bioinformatik.
 - Lesen von fasta files
 - Boyer-Moore Algorithmus implementieren
 - GATA2 MA0036.1 Verbindung zu Krebsarten und Position-Specific-Weight-Matrix (PSWM), information content für Sequence Logos.
+
+
+### Task 2
+- Implementierung vom lokalen Alignment
+- Anwenden auf ein echtes Beispiel
