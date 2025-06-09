@@ -9,5 +9,5 @@ Repository für die Aufgaben des Moduls Bioinformatik.
 
 
 ### Task 2
-- Implementierung vom lokalen Alignment
-- Anwenden auf ein echtes Beispiel
+- Implementierung von lokalem Alignment
+- Anwenden auf ein echtes Beispiel (KRAS NM_004985.5 und NM_021284.7)
