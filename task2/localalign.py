@@ -29,48 +29,173 @@ def parse_fasta(path: str) -> str:
                 sequences[i] += line
         return sequences
 
-C_MAP = {
-    "A" : 0,
-    "C" : 1,
-    "G" : 2,
-    "T" : 3,
-    "_" : 4
-}
 
-SCORE_MATRIX = np.array([
-#     A   C   G   T    _
-    [ 1, -1, -1 ,-1,  -1],  # A
-    [-1,  1, -1, -1,  -1],  # C
-    [-1, -1,  1, -1,  -1],  # G
-    [-1, -1, -1,  1,  -1],  # T
-    [-1, -1, -1, -1, -10]   # _
-])
+GAP = -1
+MISMATCH = -1
+MATCH = 1
 
-def la_score(a: str, b: str) -> int:
+def t(a: str, b: str):
     """
-    Calculates the local alignment score of the input sequences using score 1
-    for a match and -1 for everything else.
+    Computes score updates depending on if the two input characters are equal.
 
     Parameters
     ----------
-    a, b : str
-        Sequences of equal length.
-    
+    a : str
+        A character.
+    b : str
+        A character.
+
     Returns
     -------
     int
-        The local alignment score of a and b.
+        MATCH if a and b are equal and MISMATCH else.
     """
-    assert len(a) == len(b)
-    
-    score = 0
-    for i in range(len(a)):
-        score += SCORE_MATRIX[C_MAP[a[i]]][C_MAP[b[i]]]
-    return score
+    if a == b:  return MATCH
+    else:       return MISMATCH
 
 def local_align(seq1: str, seq2: str):
-    pass
+    """
+    Computes the score and traceback matrices to align the input sequences.
+
+    Parameters
+    ----------
+    seq1, seq2 : str
+        Sequences to be aligned.
+    
+    Returns
+    -------
+    traceback_mat : np.ndarray
+        Matrix used to trace the alignment cores.
+    max_score : int
+        Highest score in the score matrix.
+    cores : list[tuples[int, int]]
+        Indices of all alignment cores in the score and traceback matrices.
+    """
+    seq1 = seq1.upper()
+    seq2 = seq2.upper()
+
+    m, n = len(seq1), len(seq2)
+    score_mat = np.zeros((m + 1, n + 1))
+    traceback_mat = np.zeros((m + 1, n + 1))
+    max_score = 0
+    cores: list[tuple[int, int]] = list()
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            score_up   = score_mat[i-1][j] + GAP
+            score_left = score_mat[i][j-1] + GAP
+            score_diag = score_mat[i-1][j-1] + t(seq1[i-1], seq2[j-1])
+            score_mat[i][j] = max(0, score_up, score_left, score_diag)
+
+            if score_mat[i][j] == score_up:
+                traceback_mat[i][j] = 1  # 1 for trace up
+
+            if score_mat[i][j] == score_left:
+                traceback_mat[i][j] = 2  # 2 for trace left
+
+            if score_mat[i][j] == score_diag:
+                traceback_mat[i][j] = 3  # 3 for trace diagonal
+                
+            if score_mat[i][j] == 0:
+                traceback_mat[i][j] = 0  # 0 for end of path 
+
+            if score_mat[i][j] >= max_score:
+                if score_mat[i][j] == max_score:  # add core to existing list
+                    cores.append((i, j))
+                else:                             # empty list and add core
+                    cores = list()
+                    cores.append((i, j))
+                max_score = score_mat[i][j]
+
+    # print(score_mat)
+    return traceback_mat, max_score, cores
+
+def trace(seq1: str,
+          seq2: str,
+          traceback_mat: np.ndarray,
+          max_i: int,
+          max_j: int):
+    """
+    Traces an alignment core from the traceback matrix.
+
+    Parameters
+    ----------
+    seq1 : str
+        Original sequence one.
+    seq2 : str
+        Original sequence two.
+    traceback_mat : np.ndarray
+        Matrix containing the traceback information.
+    max_i : int
+        First index of an alignment core.
+    max_j : int
+        Second index of an alignment core.
+
+    Returns
+    -------
+    align1 : str
+        The traceback of the alignment core in seq1.
+    align2 : str
+        The traceback of the alignment core in seq2.
+    i : int
+        The offset into seq1 at which the traceback begins.
+    j : int
+        The offset into seq2 at which the traceback begins.
+    """
+    i, j = max_i, max_j
+    align1, align2 = str(), str()
+    
+    while traceback_mat[i][j] != 0:
+        if traceback_mat[i][j] == 3:    # diag
+            align1 += seq1[i-1]
+            align2 += seq2[j-1]
+            i -= 1
+            j -= 1
+        elif traceback_mat[i][j] == 2:  # left
+            align1 += "_"
+            align2 += seq2[j-1]
+            j -= 1
+        elif traceback_mat[i][j] == 1:  # up
+            align1 += seq1[i-1]
+            align2 += "_"
+            i -= 1
+    
+    # reverse strings since we constructed them backwards
+    align1 = align1[::-1]
+    align2 = align2[::-1]
+
+    return align1, align2, i, j
+
+def print_alignment(seq1_len: int,
+                    seq2_len: int,
+                    align1: str,
+                    align2: str,
+                    i: int,
+                    j: int):
+    n = max(i, j)
+    m = max(seq1_len + align1.count("_"), seq2_len + align2.count("_"))
+
+    s1 = "*" * n + align1
+    s2 = "*" * n + align2
+
+    # pad strings with "*" until desired length is reached
+    s1 = s1 + "*" * (m - len(s1))
+    s2 = s2 + "*" * (m - len(s2))
+
+    print(s1)
+    print(s2)
+    # print()
 
 if __name__ == "__main__":
+    # import shutil
+    # width = shutil.get_terminal_size().columns
+    # np.set_printoptions(linewidth=width)
+
     s1, s2 = parse_fasta(sys.argv[1])
-    local_align(s1, s2)
+    traceback_mat, max_score, cores = local_align(s1, s2)
+    
+    # print(cores)
+    print(int(max_score))
+    for max_i, max_j in cores:
+        align1, align2, i, j = trace(s1, s2, traceback_mat, max_i, max_j)
+        print_alignment(len(s1), len(s2), align1, align2, i, j)
