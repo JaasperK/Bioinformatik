@@ -107,7 +107,9 @@ def local_align(seq1: str, seq2: str):
                     cores.append((i, j))
                 max_score = score_mat[i][j]
 
-    if DEBUG: print(score_mat)
+    if DEBUG:
+        print(score_mat)
+        print(np.sum(score_mat == np.max(score_mat)))
     return traceback_mat, max_score, cores
 
 def trace(seq1: str,
@@ -196,7 +198,8 @@ if __name__ == "__main__":
     s1, s2 = parse_fasta(sys.argv[1])
     traceback_mat, max_score, cores = local_align(s1, s2)
     
-    if DEBUG: print(cores)
+    if DEBUG:
+        print(cores)
     print(int(max_score))
     for max_i, max_j in cores:
         align1, align2, i, j = trace(s1, s2, traceback_mat, max_i, max_j)
