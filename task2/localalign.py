@@ -107,7 +107,7 @@ def local_align(seq1: str, seq2: str):
                     cores.append((i, j))
                 max_score = score_mat[i][j]
 
-    # print(score_mat)
+    if DEBUG: print(score_mat)
     return traceback_mat, max_score, cores
 
 def trace(seq1: str,
@@ -187,14 +187,16 @@ def print_alignment(seq1_len: int,
     # print()
 
 if __name__ == "__main__":
-    # import shutil
-    # width = shutil.get_terminal_size().columns
-    # np.set_printoptions(linewidth=width)
+    DEBUG = False
+    if DEBUG:
+        import shutil
+        width = shutil.get_terminal_size().columns
+        np.set_printoptions(linewidth=width)
 
     s1, s2 = parse_fasta(sys.argv[1])
     traceback_mat, max_score, cores = local_align(s1, s2)
     
-    # print(cores)
+    if DEBUG: print(cores)
     print(int(max_score))
     for max_i, max_j in cores:
         align1, align2, i, j = trace(s1, s2, traceback_mat, max_i, max_j)
