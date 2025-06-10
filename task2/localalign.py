@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-def parse_fasta(path: str) -> str:
+def parse_fasta(path):
     """
     Reads a fasta file with 2 sequences.
 
@@ -34,7 +34,7 @@ GAP = -1
 MISMATCH = -1
 MATCH = 1
 
-def t(a: str, b: str):
+def t(a, b):
     """
     Computes score updates depending on if the two input characters are equal.
 
@@ -53,7 +53,7 @@ def t(a: str, b: str):
     if a == b:  return MATCH
     else:       return MISMATCH
 
-def local_align(seq1: str, seq2: str):
+def local_align(seq1, seq2):
     """
     Computes the score and traceback matrices to align the input sequences.
 
@@ -78,7 +78,7 @@ def local_align(seq1: str, seq2: str):
     score_mat = np.zeros((m + 1, n + 1))
     traceback_mat = np.zeros((m + 1, n + 1))
     max_score = 0
-    cores: list[tuple[int, int]] = list()
+    cores = list()
 
     for i in range(1, m + 1):
         for j in range(1, n + 1):
@@ -112,11 +112,11 @@ def local_align(seq1: str, seq2: str):
         print(np.sum(score_mat == np.max(score_mat)))
     return traceback_mat, max_score, cores
 
-def trace(seq1: str,
-          seq2: str,
-          traceback_mat: np.ndarray,
-          max_i: int,
-          max_j: int):
+def trace(seq1,
+          seq2,
+          traceback_mat,
+          max_i,
+          max_j):
     """
     Traces an alignment core from the traceback matrix.
 
@@ -168,12 +168,12 @@ def trace(seq1: str,
 
     return align1, align2, i, j
 
-def print_alignment(seq1_len: int,
-                    seq2_len: int,
-                    align1: str,
-                    align2: str,
-                    i: int,
-                    j: int):
+def print_alignment(seq1_len,
+                    seq2_len,
+                    align1,
+                    align2,
+                    i,
+                    j):
     n = max(i, j)
     m = max(seq1_len + align1.count("_"), seq2_len + align2.count("_"))
 
