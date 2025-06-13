@@ -109,7 +109,8 @@ def local_align(seq1, seq2):
 
     if DEBUG:
         print(score_mat)
-        print(np.sum(score_mat == np.max(score_mat)))
+        print(traceback_mat)
+
     return traceback_mat, max_score, cores
 
 def trace(seq1,
@@ -189,7 +190,7 @@ def print_alignment(seq1_len,
     # print()
 
 if __name__ == "__main__":
-    DEBUG = False
+    DEBUG = True
     if DEBUG:
         import shutil
         width = shutil.get_terminal_size().columns
@@ -200,6 +201,7 @@ if __name__ == "__main__":
     
     if DEBUG:
         print(cores)
+        
     print(int(max_score))
     for max_i, max_j in cores:
         align1, align2, i, j = trace(s1, s2, traceback_mat, max_i, max_j)
